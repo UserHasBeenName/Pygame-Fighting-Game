@@ -1,6 +1,6 @@
 import pygame
 import sys
-from pygame import *
+from pygame.locals import *
 
 pygame.init()
 vector = pygame.math.Vector2
@@ -15,7 +15,10 @@ WIDTH = 700
 HEIGHT = 400
 GROUND = HEIGHT - 67
 
-class Player():
+window = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Pygame Fighter")
+
+class Player(pygame.sprite.Sprite):
     def __init__(self, location, facing_right, colour, controls):
         super().__init__()
         self.location = location
@@ -64,7 +67,7 @@ class Player():
             self.pos[1] -= 1 + self.is_jumping 
             self.is_jumping -= 1
 
-class Floor():
+class Floor(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.surf = pygame.Surface((WIDTH, 15))
@@ -95,7 +98,6 @@ def check_rel_position():
         red_player.facing_right = True
         blue_player.facing_right = False
 
-
 def fall():
     if red_player.pos[1] < GROUND:
         red_player.pos[1] += 7
@@ -121,3 +123,26 @@ def apply_physics():
     fall()
     wall_collision()
 
+while True:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()
+            sys.exit()
+    
+    red_player.move()
+    red_player.jump()
+    blue_player.move()
+    blue_player.jump()
+
+    apply_physics()
+
+    window.fill((100, 100, 100))
+
+    for entity in sprite_group:
+        try:
+            window.blit(entity.surf, entity.pos)
+        except AttributeError:
+            window.blit(entity.surf, entity.rect)
+
+    pygame.display.update()
+    clock.tick(60)
